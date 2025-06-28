@@ -6,7 +6,7 @@ import java.util.*;
 @RestController
 public class UserRestController {
 
-    private List<Map<String, String>> users = new ArrayList<>(List.of(
+    private final List<Map<String, String>> users = new ArrayList<>(List.of(
         Map.of("id", "1", "name", "Nada"),
         Map.of("id", "2", "name", "Ali"),
         Map.of("id", "3", "name", "Sara")
