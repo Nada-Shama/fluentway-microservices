@@ -1,25 +1,24 @@
 package com.fluentway.userservice;
 
 import org.springframework.web.bind.annotation.*;
-import java.util.*;
+import java.util.List;
 
 @RestController
 public class UserRestController {
 
-    private List<Map<String, String>> users = new ArrayList<>(List.of(
-        Map.of("id", "1", "name", "Nada"),
-        Map.of("id", "2", "name", "Ali"),
-        Map.of("id", "3", "name", "Sara")
-    ));
+    private final UserRepository repository;
+
+    public UserRestController(UserRepository repository) {
+        this.repository = repository;
+    }
 
     @GetMapping("/users")
-    public List<Map<String, String>> getUsers() {
-        return users;
+    public List<User> getUsers() {
+        return repository.findAll();
     }
 
     @PostMapping("/users")
-    public Map<String, String> addUser(@RequestBody Map<String, String> user) {
-        users.add(user);
-        return user;
+    public User addUser(@RequestBody User user) {
+        return repository.save(user);
     }
 }
