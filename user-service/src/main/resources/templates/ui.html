@@ -19,78 +19,82 @@
             <ul id="userList" class="list-group list-group-flush mt-3"></ul>
         </div>
     </div>
+</div>
 
-    <div class="card shadow mt-5 mx-auto" style="max-width: 600px;">
-        <div class="card-body">
-            <h4 class="card-title mb-3 text-center">➕ Add New User</h4>
-            <form id="addUserForm" onsubmit="addUser(event)" autocomplete="off">
-                <div class="mb-3">
-                    <label for="userId" class="form-label">User ID</label>
-                    <input type="text" class="form-control" id="userId" placeholder="Enter ID" required>
-                </div>
-                <div class="mb-3">
-                    <label for="userName" class="form-label">User Name</label>
-                    <input type="text" class="form-control" id="userName" placeholder="Enter Name" required>
-                </div>
-                <button type="submit" class="btn btn-success w-100">Add User</button>
-            </form>
-        </div>
-    </div>
+<div class="card shadow mt-4" style="max-width: 600px; margin: 0 auto;">
+  <div class="card-body">
+    <h4 class="card-title mb-3 text-center">➕ Add New User</h4>
+    <form id="addUserForm" onsubmit="addUser(event)">
+      <div class="mb-3">
+        <label for="userId" class="form-label">User ID</label>
+        <input type="text" class="form-control" id="userId" placeholder="Enter ID">
+      </div>
+      <div class="mb-3">
+        <label for="userName" class="form-label">User Name</label>
+        <input type="text" class="form-control" id="userName" placeholder="Enter Name">
+      </div>
+      <button type="submit" class="btn btn-success w-100">Add User</button>
+    </form>
+  </div>
 </div>
 
 <script>
-    let users = [];
+  let users = [];
 
-    function fetchUsers() {
-        fetch('/users')
-            .then(response => response.json())
-            .then(data => {
-                users = data;
-                renderUsers();
-            })
-            .catch(error => {
-                console.error('Error fetching user data:', error);
-            });
+  function fetchUsers() {
+    fetch('/users')
+      .then(response => response.json())
+      .then(data => {
+        users = data;
+        renderUsers();
+      })
+      .catch(error => {
+        console.error('Error fetching user data:', error);
+      });
+  }
+
+  function renderUsers() {
+    const userList = document.getElementById('userList');
+    userList.innerHTML = '';
+    users.forEach(user => {
+      const li = document.createElement('li');
+      li.className = 'list-group-item';
+      li.textContent = `🆔 ${user.id} - 👤 ${user.name}`;
+      userList.appendChild(li);
+    });
+  }
+
+  async function addUser(event) {
+    event.preventDefault();
+    const id = document.getElementById('userId').value.trim();
+    const name = document.getElementById('userName').value.trim();
+    if (id === '' || name === '') return;
+
+    try {
+      const response = await fetch('/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id, name })
+      });
+
+      if (response.ok) {
+        const newUser = await response.json();
+        users.push(newUser);
+        renderUsers();
+        document.getElementById('addUserForm').reset();
+      } else {
+        alert('❌ Failed to add user. Check backend.');
+      }
+    } catch (error) {
+      console.error('Error adding user:', error);
+      alert('❌ Error connecting to backend.');
     }
+  }
 
-    function renderUsers() {
-        const userList = document.getElementById('userList');
-        userList.innerHTML = '';
-        users.forEach(user => {
-            const li = document.createElement('li');
-            li.className = 'list-group-item';
-            li.textContent = `🆔 ${user.id} - 👤 ${user.name}`;
-            userList.appendChild(li);
-        });
-    }
-
-    async function addUser(event) {
-        event.preventDefault();
-        const id = document.getElementById('userId').value.trim();
-        const name = document.getElementById('userName').value.trim();
-
-        try {
-            const response = await fetch('/users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, name })
-            });
-
-            if (response.ok) {
-                const newUser = await response.json();
-                users.push(newUser);
-                renderUsers();
-                document.getElementById('addUserForm').reset();
-            } else {
-                alert('❌ Failed to add user. Check backend.');
-            }
-        } catch (error) {
-            console.error('Error adding user:', error);
-            alert('❌ Error connecting to backend.');
-        }
-    }
-
-    fetchUsers();
+  // Load users on page load
+  fetchUsers();
 </script>
 </body>
 </html>
