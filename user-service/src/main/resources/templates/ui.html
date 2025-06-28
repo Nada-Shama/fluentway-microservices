@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Service UI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container py-5">
+    <h1 class="mb-4 text-center text-primary">🚀 Welcome to the User Service</h1>
+
+    <div class="text-center mb-4">
+        <a href="/users" class="btn btn-lg btn-outline-dark px-5 py-2 fs-5">📄 View JSON</a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <h5 class="card-title text-center">👤 Available Users</h5>
+            <ul id="userList" class="list-group list-group-flush mt-3"></ul>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mt-4" style="max-width: 600px; margin: 0 auto;">
+  <div class="card-body">
+    <h4 class="card-title mb-3 text-center">➕ Add New User</h4>
+    <form id="addUserForm" onsubmit="addUser(event)">
+      <div class="mb-3">
+        <label for="userId" class="form-label">User ID</label>
+        <input type="text" class="form-control" id="userId" placeholder="Enter ID">
+      </div>
+      <div class="mb-3">
+        <label for="userName" class="form-label">User Name</label>
+        <input type="text" class="form-control" id="userName" placeholder="Enter Name">
+      </div>
+      <button type="submit" class="btn btn-success w-100">Add User</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  let users = [];
+
+  function fetchUsers() {
+    fetch('/users')
+      .then(response => response.json())
+      .then(data => {
+        users = data;
+        renderUsers();
+      })
+      .catch(error => {
+        console.error('Error fetching user data:', error);
+      });
+  }
+
+  function renderUsers() {
+    const userList = document.getElementById('userList');
+    userList.innerHTML = '';
+    users.forEach(user => {
+      const li = document.createElement('li');
+      li.className = 'list-group-item';
+      li.textContent = `🆔 ${user.id} - 👤 ${user.name}`;
+      userList.appendChild(li);
+    });
+  }
+
+  async function addUser(event) {
+    event.preventDefault();
+    const id = document.getElementById('userId').value.trim();
+    const name = document.getElementById('userName').value.trim();
+    if (id === '' || name === '') return;
+
+    try {
+      const response = await fetch('/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id, name })
+      });
+
+      if (response.ok) {
+        const newUser = await response.json();
+        users.push(newUser);
+        renderUsers();
+        document.getElementById('addUserForm').reset();
+      } else {
+        alert('❌ Failed to add user. Check backend.');
+      }
+    } catch (error) {
+      console.error('Error adding user:', error);
+      alert('❌ Error connecting to backend.');
+    }
+  }
+
+  // Load users on page load
+  fetchUsers();
+</script>
+</body>
+</html>
