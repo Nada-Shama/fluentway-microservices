@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class UserViewController {
 
-    @GetMapping("/")
+    @GetMapping("/ui")
     public String showUI() {
-        return "ui"; 
+        return "ui";
     }
 }
