@@ -8,6 +8,6 @@ public class UserViewController {
 
     @GetMapping("/")
     public String showUI() {
-        return "ui";
+        return "ui"; 
     }
 }
